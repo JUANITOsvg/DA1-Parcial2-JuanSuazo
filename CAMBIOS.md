@@ -1,14 +1,8 @@
+# Link al repositorio
+
+https://github.com/JUANITOsvg/DA1-Parcial2-JuanSuazo
+
 # Cambios realizados
-
-Proyecto: `Jornadas/`. Se mantienen Room, Retrofit + Gson y Compose. Las referencias `archivo:línea` del
-problema apuntan al código original (commit `57a18e8`); las de la corrección, al código actual.
-
-## Build
-
-El proyecto original no compilaba: `ServicioLocal.kt:6-7,32` usa `toMediaType()` / `toResponseBody()`,
-que son de OkHttp 4, pero Retrofit 2.11 trae OkHttp 3.14. Se agregó
-`implementation("com.squareup.okhttp3:okhttp:4.12.0")` en `app/build.gradle.kts`. `converter-gson` se
-mantiene porque `Servicios.kt` usa `GsonConverterFactory`.
 
 ## 41 · Programa sin señal
 
@@ -94,14 +88,3 @@ Toolchain: JDK 17 (Temurin 17.0.21), Gradle 8.7 (wrapper), SDK 34.
 | `44-control-descargas-en-dispositivo.txt` + captura | Contador: 1 al arrancar; +0 por pestaña, ficha y rotación; +1 por doble toque; se puede volver a pedir; filtros editables con la petición en curso |
 
 Logcat sin `FATAL EXCEPTION` en todas las pruebas.
-
-## Otros problemas detectados (no corregidos, fuera del alcance pedido)
-
-- `FichaRemota` (`Programa.kt:7`) declara todos sus campos no nulos, pero Gson no respeta esa
-  null-safety: un campo `null` en el JSON produce un `NullPointerException` recién al usarlo. Tampoco se
-  captura `JsonSyntaxException` si el JSON llega mal formado.
-- `ProgramaModel` arma sus dependencias con `Servicios.de(app)` en lugar de recibirlas por constructor, así
-  que no se puede testear con un repositorio falso.
-- `cargando` sigue siendo un `MutableStateFlow` público.
-- El filtrado por día y tema se hace en Kotlin sobre la lista completa (`Catalogo.kt:34`). Con 12
-  charlas no cambia nada, pero lo correcto sería resolverlo en la consulta.
