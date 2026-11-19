@@ -1,0 +1,27 @@
+Pedido 41 · Migración Room 1 -> 2 sobre una instalación con datos (sin desinstalar)
+Dispositivo: moto g75 5G (USB, adb). Fecha: 2026-11-19.
+
+1. Instalada la versión original (base v1). Marcadas las charlas 11 y 13 en "Mi agenda".
+2. ./gradlew assembleDebug  ->  BUILD SUCCESSFUL
+3. adb install -r app-debug.apk  ->  Success   (actualización, conserva datos)
+4. adb shell am start -n ar.jornadas/.MainActivity  ->  proceso vivo, logcat sin FATAL/AndroidRuntime
+5. Base copiada con `adb exec-out run-as ar.jornadas cat databases/cartelera.db*` e inspeccionada con sqlite3:
+
+user_version (2,)
+edicion [(1, 1795127455920)]
+charlas (id, titulo, sala, favorita):
+('11', 'Compose en producción', 'Auditorio', 1)
+('12', 'Navegación entre pantallas', 'Auditorio', 0)
+('13', 'Accesibilidad en listas', 'Auditorio', 1)
+('14', 'Depuración con el profiler', 'Auditorio', 0)
+('21', 'SQLite sin sorpresas', 'Taller Norte', 0)
+('22', 'Migraciones incrementales', 'Taller Norte', 0)
+('23', 'Cachés para viajeros', 'Taller Norte', 0)
+('24', 'Consultas observables', 'Taller Norte', 0)
+('31', 'Pruebas de interfaz', 'Aula Río', 0)
+('32', 'Diseñar para fallos', 'Aula Río', 0)
+('33', 'Medir el arranque', 'Aula Río', 0)
+('34', 'Revisiones de código', 'Aula Río', 0)
+
+Resultado: la app abre sin crash tras actualizar, las marcas del usuario se conservan y existe la
+fila de edición (no hubo migración destructiva).

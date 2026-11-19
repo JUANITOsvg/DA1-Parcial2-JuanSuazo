@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import ar.jornadas.Servicios
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.io.IOException
 
 class ProgramaModel(app: Application) : AndroidViewModel(app) {
@@ -12,18 +13,24 @@ class ProgramaModel(app: Application) : AndroidViewModel(app) {
     val mesa = servicios.mesa
     private val repo = servicios.agenda
     val charlas = repo.programa.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    // true si alguna vez se descargó una edición con éxito (aunque esté vacía): decide si una
+    // falla muestra los datos guardados o pide reintentar.
+    val hayEdicion = repo.hayEdicion.stateIn(viewModelScope, SharingStarted.Eagerly, false)
     val dia = MutableStateFlow(0)
-    val aviso = MutableStateFlow("")
+    private val _falloDescarga = MutableStateFlow(false)
+    val falloDescarga = _falloDescarga.asStateFlow()
     val cargando = MutableStateFlow(false)
 
     fun recargar() {
         viewModelScope.launch {
             cargando.value = true
-            aviso.value = ""
+            _falloDescarga.value = false
             try {
                 repo.sincronizar()
-            } catch (e: IOException) {
-                aviso.value = "No se pudo consultar el programa"
+            } catch (e: IOException) {          // sin señal / servicio apagado
+                _falloDescarga.value = true
+            } catch (e: HttpException) {        // respuesta 4xx/5xx: también es una falla, no un crash
+                _falloDescarga.value = true
             } finally {
                 cargando.value = false
             }
