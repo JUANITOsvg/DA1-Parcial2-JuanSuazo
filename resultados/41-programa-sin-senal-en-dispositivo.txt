@@ -1,0 +1,16 @@
+Pedido 41 · Programa sin señal — prueba automatizada por adb en dispositivo físico
+Dispositivo: moto g75 5G (USB). Fecha: 2026-11-19. Cada bloque lista los textos visibles (uiautomator).
+Complementa 41-migracion-en-dispositivo.txt. Caso "falla con edición previa conserva lista y detalle":
+ver 43-punto-de-lectura-en-dispositivo.txt (A1–B5, servicio apagado, lista y ficha visibles con el aviso).
+
+1) v4 exitosa:
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'Sin charlas programadas.', 'Programa', 'Mi agenda', 'Mesa']
+2) Servicio apagado, app cerrada y reabierta (edición v4 vacía guardada):
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Sin charlas programadas.', 'Programa', 'Mi agenda', 'Mesa']
+3) pm clear + arranque con servicio_disponible=false (sin descarga previa):
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo descargar el programa.', 'Reintentar', 'Programa', 'Mi agenda', 'Mesa']
+4) Servicio prendido + Reintentar:
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'Día 1 · 09:00 · Auditorio', 'Compose en producción', 'Android', 'Día 1 · 09:00 · Aula Río', 'Pruebas de interfaz', 'Calidad', 'Día 1 · 09:00 · Taller Norte', 'SQLite sin sorpresas', 'Datos', 'Día 1 · 14:30 · Auditorio', 'Navegación entre pantallas', 'Android', 'Día 1 · 14:30 · Aula Río', 'Diseñar para fallos', 'Calidad', 'Programa', 'Mi agenda', 'Mesa']
+
+Capturas: 41-v4-reabierta-sin-senal.png (caso 2), 41-arranque-vacio-sin-senal.png (caso 3).
+Resultado: cumple. logcat sin FATAL EXCEPTION.

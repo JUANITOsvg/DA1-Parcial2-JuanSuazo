@@ -1,0 +1,55 @@
+Pedido 42 · Agenda personal — prueba automatizada por adb en dispositivo físico
+Dispositivo: moto g75 5G (USB). Fecha: 2026-11-19. Servicio de prueba prendido; la edición se elige en Mesa.
+Tras cada paso se copia la base (`adb exec-out run-as ar.jornadas cat databases/cartelera.db*`) y se consulta con sqlite3.
+
+1) v1 descargada (11 y 13 marcadas previamente):
+   marcadas: [('11',), ('13',)]
+   ids: ['11', '12', '13', '14', '21', '22', '23', '24', '31', '32', '33', '34']
+   11: [('Compose en producción', 'Auditorio', 1)]
+   90: []
+2) v2: la 11 conserva la marca con nuevo título y sala:
+   marcadas: [('11',), ('13',)]
+   ids: ['11', '12', '13', '14', '21', '22', '23', '24', '31', '32', '33', '34']
+   11: [('Compose en producción avanzada', 'Sala Puerto', 1)]
+   90: []
+3) v3 con demora larga: durante la petición se quitó la 13 y se agregó la 23 (28s tras Actualizar)
+   tras llegar la respuesta v3 (sale 11, entra 90; se respetan los cambios hechos durante la espera):
+   marcadas: [('23',)]
+   ids: ['12', '13', '14', '21', '22', '23', '24', '31', '32', '33', '34', '90']
+   11: []
+   90: [('Clínica de trazas', 'Auditorio', 0)]
+4) v2 otra vez: la 11 regresa sin marcar:
+   marcadas: [('23',)]
+   ids: ['11', '12', '13', '14', '21', '22', '23', '24', '31', '32', '33', '34']
+   11: [('Compose en producción avanzada', 'Sala Puerto', 0)]
+   90: []
+5) Ráfaga con demora larga (v2): Actualizar -> abrir 23 -> «Quitar de mi agenda» -> Volver (~2 s, petición de 8 s en curso)
+   base inmediatamente después de quitar la marca (respuesta aún no llegó):
+   marcadas: []
+   ids: ['11', '12', '13', '14', '21', '22', '23', '24', '31', '32', '33', '34']
+   11: [('Compose en producción avanzada', 'Sala Puerto', 0)]
+   90: []
+   base tras llegar la respuesta:
+   marcadas: []
+   ids: ['11', '12', '13', '14', '21', '22', '23', '24', '31', '32', '33', '34']
+   11: [('Compose en producción avanzada', 'Sala Puerto', 0)]
+   90: []
+6) Ráfaga con demora larga (v2): Actualizar -> abrir 23 -> «Agregar a mi agenda» -> Volver (~2 s, petición en curso)
+   base inmediatamente después de marcar:
+   marcadas: [('23',)]
+   ids: ['11', '12', '13', '14', '21', '22', '23', '24', '31', '32', '33', '34']
+   11: [('Compose en producción avanzada', 'Sala Puerto', 0)]
+   90: []
+   base tras llegar la respuesta (la marca agregada durante la espera se conserva):
+   marcadas: [('23',)]
+   ids: ['11', '12', '13', '14', '21', '22', '23', '24', '31', '32', '33', '34']
+   11: [('Compose en producción avanzada', 'Sala Puerto', 0)]
+   90: []
+   contador: Peticiones en esta sesión: 11
+
+Notas:
+- En 3) los toques tardaron 28 s (más que la petición de 8 s), así que ese paso solo prueba v3; el caso
+  "marca durante la petición" se prueba en 5) y 6) con ráfagas de ~2 s. Capturas:
+  42-marca-durante-peticion.png (quitar) y 42-marca-agregada-durante-peticion.png (agregar).
+- 6) es el caso que el código original fallaba: el INSERT ... REPLACE reinsertaba la fila con favorita = 0.
+Resultado: cumple. logcat sin FATAL EXCEPTION.
