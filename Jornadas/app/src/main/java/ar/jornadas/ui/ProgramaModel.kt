@@ -3,13 +3,14 @@ package ar.jornadas.ui
 import android.app.Application
 import androidx.lifecycle.*
 import ar.jornadas.Servicios
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
 class ProgramaModel(app: Application, private val estado: SavedStateHandle) : AndroidViewModel(app) {
-    private val servicios = Servicios(app)
+    private val servicios = Servicios.de(app)
     val mesa = servicios.mesa
     private val repo = servicios.agenda
     val charlas = repo.programa.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -24,8 +25,16 @@ class ProgramaModel(app: Application, private val estado: SavedStateHandle) : An
     val falloDescarga = _falloDescarga.asStateFlow()
     val cargando = MutableStateFlow(false)
 
+    private var descarga: Job? = null
+
+    // La llama la Activity al crearse; solo la primera vez en el proceso dispara la descarga.
+    fun cargaAutomatica() {
+        if (servicios.cargaAutomaticaPendiente.getAndSet(false)) recargar()
+    }
+
     fun recargar() {
-        viewModelScope.launch {
+        if (descarga?.isActive == true) return   // un toque durante una petición no agrega intentos
+        descarga = viewModelScope.launch {
             cargando.value = true
             _falloDescarga.value = false
             try {

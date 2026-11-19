@@ -1,0 +1,37 @@
+Pedido 44 · Control de descargas — prueba automatizada por adb en dispositivo físico
+Dispositivo: moto g75 5G (USB). Fecha: 2026-11-19. Servicio de prueba apagado (cada petición falla:
+el contador incluye intentos fallidos). Se lee "Peticiones en esta sesión" en la pestaña Mesa.
+Método: toques con `adb shell input tap` (coordenadas de `uiautomator dump`), rotación con
+`settings put system user_rotation`, captura con `screencap`.
+
+Esperado: 1 carga automática por proceso; rotar / entrar a una ficha / cambiar de pestaña = +0;
+doble toque durante una petición = +1; tras terminar se puede volver a pedir (+1);
+filtros editables durante la espera.
+
+1) Arranque en frío (proceso nuevo tras instalar): Peticiones en esta sesión: 1
+2) Tras cambiar de pestaña Programa/Mesa/Mi agenda/Programa: Peticiones en esta sesión: 1
+3) Tras entrar a una ficha y volver: Peticiones en esta sesión: 1
+4) Tras rotar ida y vuelta: Peticiones en esta sesión: 1
+5a) Durante la petición (doble toque en Actualizar) pantalla:
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 1 · 09:00 · Auditorio', 'Compose en producción', 'Android · En mi agenda', 'Día 1 · 09:00 · Aula Río', 'Pruebas de interfaz', 'Calidad', 'Día 1 · 09:00 · Taller Norte', 'SQLite sin sorpresas', 'Datos', 'Día 1 · 14:30 · Auditorio', 'Navegación entre pantallas', 'Android', 'Día 1 · 14:30 · Aula Río', 'Programa', 'Mi agenda', 'Mesa']
+5b) Filtro editado durante la espera (Día 1):
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 1 · 09:00 · Auditorio', 'Compose en producción', 'Android · En mi agenda', 'Día 1 · 09:00 · Aula Río', 'Pruebas de interfaz', 'Calidad', 'Día 1 · 09:00 · Taller Norte', 'SQLite sin sorpresas', 'Datos', 'Día 1 · 14:30 · Auditorio', 'Navegación entre pantallas', 'Android', 'Día 1 · 14:30 · Aula Río', 'Programa', 'Mi agenda', 'Mesa']
+5c) Tras doble toque: Peticiones en esta sesión: 2
+6) Tras terminar, un nuevo Actualizar: Peticiones en esta sesión: 3
+7) Demora larga: doble toque en Actualizar y luego, durante la espera, Día 2 + Datos (11s desde el toque):
+barra de progreso visible: False
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 2 · 09:00 · Taller Norte', 'Cachés para viajeros', 'Datos', 'Día 2 · 14:30 · Taller Norte', 'Consultas observables', 'Datos', 'Programa', 'Mi agenda', 'Mesa']
+8) Al terminar la petición larga: Peticiones en esta sesión: 4
+9) Ráfaga con demora larga (doble toque + Día 2 + Datos, captura a ~2 s): ver resultados/44-espera-filtros-editables.png
+10) Tras terminar: Peticiones en esta sesión: 5
+
+Notas:
+- En 3) la primera tarjeta visible era «Compose en producción» (se usó esa ficha).
+- En 5a/5b y 7) la petición normal (1,4 s) o la larga ya había terminado cuando uiautomator leyó la
+  pantalla (cada lectura tarda ~3 s); por eso se repitió en 9) con una ráfaga de toques y una captura
+  instantánea a ~2 s: resultados/44-espera-filtros-editables.png muestra la barra de progreso activa
+  y los filtros Día 2 + Datos ya aplicados (2 resultados) mientras la petición sigue en curso.
+- Secuencia del contador: 1 (arranque) -> 1 -> 1 -> 1 -> 2 (doble toque) -> 3 (nuevo pedido)
+  -> 4 (doble toque, demora larga) -> 5 (doble toque, demora larga).
+
+Resultado: cumple todos los puntos del pedido 44. logcat sin FATAL EXCEPTION.
