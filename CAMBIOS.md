@@ -4,6 +4,9 @@ https://github.com/JUANITOsvg/DA1-Parcial2-JuanSuazo
 
 # Cambios realizados
 
+Las referencias `archivo:línea` de cada **Problema** apuntan al código original (commit `57a18e8`); las de
+cada **Corrección**, al código actual.
+
 ## 41 · Programa sin señal
 
 **Problema.** `Catalogo.kt:27-32` reemplazaba la lista por el aviso ante cualquier falla, con un mensaje
