@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
-class ProgramaModel(app: Application) : AndroidViewModel(app) {
+class ProgramaModel(app: Application, private val estado: SavedStateHandle) : AndroidViewModel(app) {
     private val servicios = Servicios(app)
     val mesa = servicios.mesa
     private val repo = servicios.agenda
@@ -16,7 +16,10 @@ class ProgramaModel(app: Application) : AndroidViewModel(app) {
     // true si alguna vez se descargó una edición con éxito (aunque esté vacía): decide si una
     // falla muestra los datos guardados o pide reintentar.
     val hayEdicion = repo.hayEdicion.stateIn(viewModelScope, SharingStarted.Eagerly, false)
-    val dia = MutableStateFlow(0)
+    // Filtros en SavedStateHandle: sobreviven a rotación, a salir de la pantalla y a la muerte del
+    // proceso (Android los restaura con la tarea); una tarea nueva arranca sin filtros.
+    val dia = estado.getStateFlow("dia", 0)
+    val tema = estado.getStateFlow("tema", "Todos")
     private val _falloDescarga = MutableStateFlow(false)
     val falloDescarga = _falloDescarga.asStateFlow()
     val cargando = MutableStateFlow(false)
@@ -36,6 +39,9 @@ class ProgramaModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
+
+    fun elegirDia(valor: Int) { estado["dia"] = valor }
+    fun elegirTema(valor: String) { estado["tema"] = valor }
 
     fun marcar(id: String) { viewModelScope.launch { repo.cambiarFavorita(id) } }
 }

@@ -1,0 +1,34 @@
+Pedido 43 · Volver al punto de lectura — prueba automatizada por adb en dispositivo físico
+Dispositivo: moto g75 5G (USB). Fecha: 2026-11-19. Servicio de prueba apagado (sin señal, datos guardados).
+Método: toques con `adb shell input tap` sobre coordenadas obtenidas de `uiautomator dump`; cada bloque
+lista los textos visibles en pantalla en ese momento. Rotación forzada con
+`settings put system user_rotation 1/0`. Muerte del proceso con `adb shell am kill ar.jornadas`.
+
+Esperado A: tras Día 2 + Datos -> ficha -> Volver -> rotar, quedan 2 resultados de Datos.
+Esperado B: con la ficha abierta -> Inicio -> am kill -> Recientes, vuelve la ficha y, al volver, ambos filtros.
+Esperado C: una tarea nueva arranca sin filtros.
+(En A4, horizontal, solo se ve el primer ítem por altura de pantalla; uiautomator solo lista lo visible.)
+
+A1 filtros Día 2 + Datos:
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 2 · 09:00 · Taller Norte', 'Cachés para viajeros', 'Datos', 'Día 2 · 14:30 · Taller Norte', 'Consultas observables', 'Datos', 'Programa', 'Mi agenda', 'Mesa']
+A2 ficha abierta:
+['Jornadas del Sur', 'Volver', 'Cachés para viajeros', 'Día 2 · 09:00 · Taller Norte', 'Leo Mora', 'Demostración con un proyecto Android y espacio de preguntas.', 'Agregar a mi agenda']
+A3 tras Volver:
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 2 · 09:00 · Taller Norte', 'Cachés para viajeros', 'Datos', 'Día 2 · 14:30 · Taller Norte', 'Consultas observables', 'Datos', 'Programa', 'Mi agenda', 'Mesa']
+A4 tras rotar a horizontal:
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 2 · 09:00 · Taller Norte', 'Programa', 'Mi agenda', 'Mesa']
+A5 tras volver a vertical:
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 2 · 09:00 · Taller Norte', 'Cachés para viajeros', 'Datos', 'Día 2 · 14:30 · Taller Norte', 'Consultas observables', 'Datos', 'Programa', 'Mi agenda', 'Mesa']
+B1 ficha abierta:
+['Jornadas del Sur', 'Volver', 'Cachés para viajeros', 'Día 2 · 09:00 · Taller Norte', 'Leo Mora', 'Demostración con un proyecto Android y espacio de preguntas.', 'Agregar a mi agenda']
+B2 pid antes=20050 / tras am kill='' (vacío = proceso muerto)
+B3 Recientes:
+['Cerrar todo']
+B4 tras volver desde Recientes (pid nuevo=22011):
+['Jornadas del Sur', 'Volver', 'Cachés para viajeros', 'Día 2 · 09:00 · Taller Norte', 'Leo Mora', 'Demostración con un proyecto Android y espacio de preguntas.', 'Agregar a mi agenda']
+B5 tras Volver:
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 2 · 09:00 · Taller Norte', 'Cachés para viajeros', 'Datos', 'Día 2 · 14:30 · Taller Norte', 'Consultas observables', 'Datos', 'Programa', 'Mi agenda', 'Mesa']
+C1 tarea nueva (Atrás para salir + abrir desde launcher):
+['Jornadas del Sur', 'Programa', 'Ambos días', 'Día 1', 'Día 2', 'Todos', 'Android', 'Datos', 'Calidad', 'Actualizar', 'No se pudo actualizar: se están usando los datos guardados.', 'Día 1 · 09:00 · Auditorio', 'Compose en producción', 'Android · En mi agenda', 'Día 1 · 09:00 · Aula Río', 'Pruebas de interfaz', 'Calidad', 'Día 1 · 09:00 · Taller Norte', 'SQLite sin sorpresas', 'Datos', 'Día 1 · 14:30 · Auditorio', 'Navegación entre pantallas', 'Android', 'Día 1 · 14:30 · Aula Río', 'Programa', 'Mi agenda', 'Mesa']
+
+Resultado: A, B y C cumplen. logcat sin FATAL EXCEPTION.
